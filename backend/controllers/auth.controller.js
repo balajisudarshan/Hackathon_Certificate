@@ -7,22 +7,16 @@ const User = require("../models/User.model");
 const login = async (req, res) => {
   const email = req.body.email.toLowerCase();
   const password = req.body.password;
+
   try {
-    const user = await User.findOne({ email });
+    const user = await User.findOne({ email })
     if (!user) {
       return res.status(404).json("User not found");
     }
-    const isMatch = await bcrypt.compare(password, user.password);
-    const { email, password } = req.body;
-    if(!email || !password){
-        return res.status(400).json("Please provide email and password");
+    if (!email || !password) {
+      return res.status(400).json("Please provide email and password");
     }
-    try{
-        const user = await User.findOne({email})
-        if(!user){
-            return res.status(404).json("User not found");
-        }
-        const isMatch = await bcrypt.compare(password,user.password)
+    const isMatch = await bcrypt.compare(password, user.password)
 
     if (!isMatch) {
       return res.status(400).json("Invalid credentials");
@@ -38,7 +32,8 @@ const login = async (req, res) => {
     console.log(error);
     return res.status(500).json("Server Error");
   }
-};
+
+}
 
 const register = async (req, res) => {
   const { name, organization, email, password } = req.body;
