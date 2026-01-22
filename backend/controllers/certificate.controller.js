@@ -1,4 +1,10 @@
 const Certificate = require("../models/Certificate.model");
+const crypto = require("crypto");
+
+const generateCertificateHash = (certId, name, course, issuer, dateOfIssue) => {
+  const dataString = `${certId}|${name}|${course}|${issuer}|${dateOfIssue}`;
+  return crypto.createHash("sha256").update(dataString).digest("hex");
+};
 
 const issueCertificate = async (req, res) => {
   try {
@@ -29,12 +35,20 @@ const issueCertificate = async (req, res) => {
     }
 
     const certId = `CERT-${year}-${String(nextNumber).padStart(6, "0")}`;
+    const hashValue = generateCertificateHash(
+      certId,
+      name,
+      course,
+      issuer,
+      dateOfIssue,
+    );
     const certificate = new Certificate({
       certId,
       name,
       course,
       issuer,
       dateOfIssue,
+      hashValue,
       startingDate,
       endingDate,
     });
@@ -45,7 +59,7 @@ const issueCertificate = async (req, res) => {
   }
 };
 
-const getCertificate = async (req, res) => {
+const verifyCertificate = async (req, res) => {
   try {
     const { certId } = req.params;
     if (!certId) {
@@ -55,10 +69,59 @@ const getCertificate = async (req, res) => {
     if (!certificate) {
       return res.status(404).json({ message: "Certificate not found" });
     }
-    res.json(certificate);
+    const dataString = `${certificate.certId}|${certificate.name}|${certificate.course}|${certificate.issuer}|${certificate.dateOfIssue}`;
+    const recalculatedHash = crypto
+      .createHash("sha256")
+      .update(dataString)
+      .digest("hex");
+    const isValid = recalculatedHash === certificate.hashValue;
+    res.status(200).json({
+      certificate,
+      valid: isValid,
+    });
   } catch (err) {
     res.status(500).json({ message: "Server Error", error: err.message });
   }
 };
+const updateCertificateStatus = async (req, res) => {
+  try {
+    const status = req.body.status;
+    const certId = req.params.certId;
+    if (!status || !certId) {
+      return res
+        .status(400)
+        .json({ message: "status and certId are required" });
+    }
+    const certificate = await Certificate.findOne({ certId });
+    if (!certificate) {
+      return res.status(404).json({ message: "Certificate not found" });
+    }
+    if (!["active", "revoked", "expired"].includes(status)) {
+      return res.status(400).json({ message: "Invalid status value" });
+    }
+    if (certificate.status === "expired") {
+      return res
+        .status(400)
+        .json({ message: "Certificate is already expired" });
+    }
+    if (certificate.status === status) {
+      return res
+        .status(200)
+        .json({ message: "Certificate status is already up to date" });
+    }
+    certificate.status = status;
+    await certificate.save();
+    res
+      .status(200)
+      .json({ message: "Certificate status updated successfully" });
+  } catch (err) {
+    console.error("Error updating certificate statuses:", err);
+    res.status(500).json({ message: "Server Error", error: err.message });
+  }
+};
 
-module.exports = { issueCertificate, getCertificate };
+module.exports = {
+  issueCertificate,
+  verifyCertificate,
+  updateCertificateStatus,
+};
