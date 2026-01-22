@@ -8,7 +8,7 @@ const {
   getAllCertificates,
 } = require("../controllers/certificate.controller");
 
-router.post("/issue", authMiddleware, issueCertificate);
+router.post("/issue", issueCertificate);
 router.get("/verify/:certId", verifyCertificate);
 router.get("/:certId", getCertificateById);
 router.put("/status/:certId", authMiddleware, updateCertificateStatus);
