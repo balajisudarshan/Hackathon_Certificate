@@ -6,7 +6,7 @@ const {
   updateCertificateStatus,
 } = require("../controllers/certificate.controller");
 
-router.post("/issue", authMiddleware, issueCertificate);
+router.post("/issue", issueCertificate);//need to add later
 router.get("/:certId", verifyCertificate);
 router.put("/status/:certId", authMiddleware, updateCertificateStatus);
 module.exports = router;
