@@ -15,6 +15,7 @@ import { Eye, EyeOff } from "lucide-react";
 import axios from 'axios';
 import toast from 'react-hot-toast';
 import { Spinner } from '@/components/ui/spinner';
+import { useAuth } from '@/context/AuthContext';
 export default function LoginPage() {
 
     const [showPassword, setShowPassword] = useState(false);
@@ -22,6 +23,8 @@ export default function LoginPage() {
     const [email, setEmail] = useState("")
     const [password, setPassword] = useState("")
     const [loading, setLoading] = useState(false)
+
+    const {login} = useAuth();
 
     const handleLogin = async (e) => {
         e.preventDefault();
@@ -33,12 +36,15 @@ export default function LoginPage() {
                 password
             });
             console.log(email + " " + password)
-            toast.success("Login Successful")
+             toast.success("Login Successful")
 
             console.log(res.data)
+            localStorage.setItem("token",res.data.token)
+            localStorage.setItem("Name",res.data.name)
+            login(res.data)
         } catch (error) {
-            console.log(error)
-            toast.error("Login Failed: " + (error.response?.data?.message || error.message));
+            console.log(error.response.data)
+            toast.error("Login Failed: " + (error.response?.data || error.message));
 
         } finally {
             setLoading(false);
