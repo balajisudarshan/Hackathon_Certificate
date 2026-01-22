@@ -22,6 +22,10 @@ const CertificateSchema = new mongoose.Schema({
     type: Date,
     required: true,
   },
+  hashValue: {
+    type: String,
+    required: true,
+  },
   signatureUrl: {
     type: String,
   },
@@ -33,6 +37,18 @@ const CertificateSchema = new mongoose.Schema({
   },
   endingDate: {
     type: Date,
+  },
+  expiryDate: {
+    type: Date,
+  },
+  expired: {
+    type: Boolean,
+    default: false,
+  },
+  status: {
+    type: String,
+    enum: ["active", "revoked", "expired"],
+    default: "active",
   },
 });
 
