@@ -9,14 +9,14 @@ const login = async (req, res) => {
   const password = req.body.password;
 
   try {
-    const user = await User.findOne({ email })
+    const user = await User.findOne({ email });
     if (!user) {
       return res.status(404).json("User not found");
     }
     if (!email || !password) {
       return res.status(400).json("Please provide email and password");
     }
-    const isMatch = await bcrypt.compare(password, user.password)
+    const isMatch = await bcrypt.compare(password, user.password);
 
     if (!isMatch) {
       return res.status(400).json("Invalid credentials");
@@ -32,11 +32,15 @@ const login = async (req, res) => {
     console.log(error);
     return res.status(500).json("Server Error");
   }
-
-}
+};
 
 const register = async (req, res) => {
-  const { name, organization, email, password } = req.body;
+  const { name, organization, password } = req.body;
+  const email = req.body.email.toLowerCase();
+  if (!name || !organization || !password || !email) {
+    return res.status(400).json("Please provide all fields");
+  }
+
   try {
     const isPresent = await User.findOne({ email });
     if (isPresent) {

@@ -120,8 +120,73 @@ const updateCertificateStatus = async (req, res) => {
   }
 };
 
+const getCertificateById = async (req, res) => {
+  try {
+    const { certId } = req.params;
+    if (!certId) {
+      return res.status(400).json({ message: "certId is required" });
+    }
+    const certificate = await Certificate.findOne({ certId });
+    if (!certificate) {
+      return res.status(404).json({ message: "Certificate not found" });
+    }
+    res.status(200).json(certificate);
+  } catch (err) {
+    res.status(500).json({ message: "Server Error", error: err.message });
+  }
+};
+
+const getAllCertificates = async (req, res) => {
+  try {
+    const { page = 1, limit = 10, issuer, course, valid } = req.query;
+
+    const query = {};
+
+    if (issuer) {
+      query.issuer = issuer;
+    }
+
+    if (course) {
+      query.course = course;
+    }
+
+    // example: valid=true / valid=false
+    if (valid !== undefined) {
+      query.expired = valid === "false";
+    }
+
+    const skip = (page - 1) * limit;
+
+    const [certificates, total] = await Promise.all([
+      Certificate.find(query)
+        .sort({ dateOfIssue: -1 })
+        .skip(skip)
+        .limit(Number(limit)),
+
+      Certificate.countDocuments(query),
+    ]);
+
+    res.status(200).json({
+      meta: {
+        total,
+        page: Number(page),
+        limit: Number(limit),
+        totalPages: Math.ceil(total / limit),
+      },
+      data: certificates,
+    });
+  } catch (err) {
+    res.status(500).json({
+      message: "Server Error",
+      error: err.message,
+    });
+  }
+};
+
 module.exports = {
   issueCertificate,
   verifyCertificate,
   updateCertificateStatus,
+  getCertificateById,
+  getAllCertificates,
 };

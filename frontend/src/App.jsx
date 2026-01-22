@@ -3,16 +3,16 @@ import { Button } from './components/ui/button'
 import Login from './pages/Login.jsx'
 import { Toaster } from 'react-hot-toast'
 import AddCertificate from './pages/AddCertificate'
-import {BrowserRouter,Link,Routes,Route} from 'react-router'
+import { BrowserRouter, Link, Routes, Route } from 'react-router'
 const App = () => {
   return (
     <BrowserRouter>
-      {/* <Login /> */}
-      <Routes>
+      <Login />
+      {/* <Routes>
         <Route path="/" element={<AddCertificate />} />
         <Route path='/verify/:id' element={<div>Verify Page</div>} />
-      </Routes>
-      <Toaster/>
+      </Routes> */}
+      <Toaster />
     </BrowserRouter>
 
   )
