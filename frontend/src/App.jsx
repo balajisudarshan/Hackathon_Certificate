@@ -9,12 +9,12 @@ const App = () => {
   return (
     <BrowserRouter>
       <Login />
-      {/* <Routes>
+      <Routes>
         <Route path="/" element={<AddCertificate />} />
         <Route path='/verify/:id' element={<VerifyCertificate />} />
         <Route path='/login' element={<Login />} />
       </Routes>
-      <Toaster/>
+      <Toaster />
     </BrowserRouter>
 
   )
