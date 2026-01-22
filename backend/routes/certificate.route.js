@@ -6,6 +6,6 @@ const {
 } = require("../controllers/certificate.controller");
 
 router.post("/issue", authMiddleware, issueCertificate);
-router.get("/:certId", authMiddleware, getCertificate);
+router.get("/:certId", getCertificate);
 
 module.exports = router;
