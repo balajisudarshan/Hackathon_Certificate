@@ -1,6 +1,7 @@
 const express = require("express");
 const cors = require("cors");
 require("dotenv").config();
+require("./cron/certificateExpiry");
 const connectDb = require("./config/db");
 const authRoutes = require("./routes/auth.route");
 const rateLimiter = require("./middleware/RateLimiter.middleware");

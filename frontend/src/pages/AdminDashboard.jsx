@@ -51,22 +51,7 @@ const AdminDashboard = () => {
         getAllCertificates()
         getAllUsers()
     }, [])
-    // const stats = {
-    //     totalCertificates: 1250,
-    //     activeCertificates: 1180,
-    //     expiredCertificates: 45,
-    //     pendingVerifications: 25,
-    //     totalUsers: 320,
-    //     newUsersThisMonth: 45
-    // };
 
-    // const recentCertificates = [
-    //     { id: 'CERT-001', name: 'John Doe', course: 'React Development', status: 'Active', issuedDate: '2024-01-15' },
-    //     { id: 'CERT-002', name: 'Jane Smith', course: 'Node.js Backend', status: 'Active', issuedDate: '2024-01-14' },
-    //     { id: 'CERT-003', name: 'Bob Johnson', course: 'Python Data Science', status: 'Expired', issuedDate: '2023-12-01' },
-    //     { id: 'CERT-004', name: 'Alice Brown', course: 'UI/UX Design', status: 'Active', issuedDate: '2024-01-13' },
-    //     { id: 'CERT-005', name: 'Charlie Wilson', course: 'DevOps', status: 'Pending', issuedDate: '2024-01-12' }
-    // ];
 
     const handleAddUser = async () => {
         setLoading(true);
