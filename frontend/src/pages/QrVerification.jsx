@@ -15,8 +15,10 @@ import {
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
+import { useAuth } from '@/context/AuthContext'
 
 const QrVerification = () => {
+  const { user } = useAuth()
   const { certId } = useParams()
   const [certificate, setCertificate] = useState(null)
   const [loading, setLoading] = useState(false)
@@ -60,29 +62,30 @@ const QrVerification = () => {
                 Verifying certificate…
               </div>
             )}
+
             {certificate && !isValid && (
-                <div className="space-y-8 animate-fade-in">
-                  <div className="flex flex-col sm:flex-row items-center justify-between gap-4 bg-red-50 p-5 rounded-xl border border-red-200">
-                    <div className="flex items-center gap-3">
-                        <ShieldCheck className="h-8 w-8 text-red-600" />
-                        
-                        <h2 className="text-2xl font-bold text-red-800">
-                            Verification Failed
-                        </h2>
-                    </div>
-                    <Badge className="text-base px-5 py-2 bg-white text-red-700 border-red-300">
-                        <CheckCircle2 className="mr-1.5 h-4 w-4" />
-                        INVALID CERTIFICATE
-                    </Badge>
-                    </div>
-                    <div className="text-center">
-                        <Button variant="outline" onClick={() => window.history.back()}>
-                            Go Back
-                        </Button>
-                    </div>
+              <div className="space-y-8 animate-fade-in">
+                <div className="flex flex-col sm:flex-row items-center justify-between gap-4 bg-red-50 p-5 rounded-xl border border-red-200">
+                  <div className="flex items-center gap-3">
+                    <ShieldCheck className="h-8 w-8 text-red-600" />
+                    <h2 className="text-2xl font-bold text-red-800">
+                      Verification Failed
+                    </h2>
+                  </div>
+                  <Badge className="text-base px-5 py-2 bg-white text-red-700 border-red-300">
+                    <CheckCircle2 className="mr-1.5 h-4 w-4" />
+                    INVALID CERTIFICATE
+                  </Badge>
                 </div>
-                
+
+                <div className="text-center">
+                  <Button variant="outline" onClick={() => window.history.back()}>
+                    Go Back
+                  </Button>
+                </div>
+              </div>
             )}
+
             {certificate && isValid && (
               <div className="space-y-8 animate-fade-in">
                 <div className="flex flex-col sm:flex-row items-center justify-between gap-4 bg-green-50 p-5 rounded-xl border border-green-200">
@@ -160,6 +163,24 @@ const QrVerification = () => {
             )}
           </CardContent>
         </Card>
+
+        <div className="flex justify-center space-x-4 mt-8">
+          {user && (
+            <Button variant="outline" onClick={() => window.location.href = '/'}>
+              Issue Certificate
+            </Button>
+          )}
+
+          <Button variant="outline" onClick={() => window.location.href = '/verify'}>
+            Manual Verification
+          </Button>
+
+          {user && (
+            <Button variant="outline" onClick={() => window.location.href = '/admin'}>
+              Admin Dashboard
+            </Button>
+          )}
+        </div>
       </div>
     </div>
   )

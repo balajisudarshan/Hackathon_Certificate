@@ -17,8 +17,11 @@ import toast from 'react-hot-toast';
 import { Spinner } from '@/components/ui/spinner';
 import { useAuth } from '@/context/AuthContext';
 import { useNavigate } from 'react-router-dom';
-export default function LoginPage() {
 
+export default function LoginPage() {
+    // const {user} = useAuth();
+    const user = localStorage.getItem("token")
+    const token = localStorage.getItem("token");
     const [showPassword, setShowPassword] = useState(false);
     const apiUrl = import.meta.env.VITE_API_URL;
     const [email, setEmail] = useState("")
@@ -53,7 +56,9 @@ export default function LoginPage() {
             setLoading(false);
         }
     }
-
+    if(token){
+         navigate('/admin');
+    }
     return (
         <div className="min-h-screen flex items-center justify-center bg-slate-50 dark:bg-slate-950 p-4">
             <Card className="w-full max-w-md shadow-xl hover:shadow-2xl transition-shadow duration-300">
@@ -137,17 +142,7 @@ export default function LoginPage() {
 
                 </CardContent>
 
-                <CardFooter className="flex flex-col items-center justify-center text-sm text-muted-foreground">
-                    <p>
-                        Don&apos;t have an account?{" "}
-                        <a
-                            href="/signup"
-                            className="text-primary hover:underline font-medium"
-                        >
-                            Sign up
-                        </a>
-                    </p>
-                </CardFooter>
+                
             </Card>
         </div>
     );
