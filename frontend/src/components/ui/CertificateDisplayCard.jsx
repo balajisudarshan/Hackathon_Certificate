@@ -14,6 +14,7 @@ const CertificateDisplayCard = ({ cert }) => {
             const res = await axios.put(`http://localhost:5050/api/certificates/status/${cert.certId}`, { status })
             toast.success("Status updated successfully")
             setOpen(false)
+
         } catch (error) {
             toast.error("Failed to update status")
             console.log(error)
@@ -24,6 +25,7 @@ const CertificateDisplayCard = ({ cert }) => {
             const res = await axios.delete(`http://localhost:5050/api/certificates/delete/${cert.certId}`)
             toast.success("Certificate deleted successfully")
             setOpen(false)
+            window.location.reload();
         } catch (error) {
             toast.error("Failed to delete certificate")
             console.log(error)
