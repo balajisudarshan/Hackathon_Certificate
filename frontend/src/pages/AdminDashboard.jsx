@@ -135,7 +135,6 @@ const AdminDashboard = () => {
                                         </CardHeader>
                                         <CardContent>
                                             <div className="text-2xl font-bold text-slate-900">{users.length}</div>
-                                            {/* <p className="text-xs text-slate-600">+15% from last month</p> */}
                                         </CardContent>
                                     </Card>
 
