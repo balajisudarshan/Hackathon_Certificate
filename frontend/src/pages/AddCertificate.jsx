@@ -26,6 +26,7 @@ const AddCertificate = () => {
   const [expires, setExpires] = useState('')
   const [name, setName] = useState('')
   const [course, setCourse] = useState('')
+  const [mail, setMail] = useState('')
   const [startDate, setStartDate] = useState('')
   const [endDate, setEndDate] = useState('')
   const [issuer, setIssuer] = useState('')
@@ -44,6 +45,7 @@ const AddCertificate = () => {
     setExpires('')
     setName('')
     setCourse('')
+    setMail('')
     setStartDate('')
     setEndDate('')
     setIssuer('')
@@ -51,7 +53,7 @@ const AddCertificate = () => {
   }
 
   const postDetails = async () => {
-    if (!name || !course || !issuer || !startDate || !endDate) {
+    if (!name || !course || !issuer || !startDate || !endDate || !mail) {
       toast.error('Please fill all required fields')
       return
     }
@@ -62,6 +64,7 @@ const AddCertificate = () => {
         name,
         course,
         issuer,
+        email: mail,
         startDate,
         endDate,
         expiryDate: expires === 'yes' ? expiryDate : null
@@ -97,6 +100,10 @@ const AddCertificate = () => {
             <div className="space-y-2">
               <Label>Recipient's Full Name</Label>
               <Input value={name} onChange={e => setName(e.target.value)} />
+            </div>
+            <div className="space-y-2">
+              <Label>Recipient's Mail</Label>
+              <Input value={mail} onChange={e => setMail(e.target.value)} />
             </div>
 
             <div className="space-y-2">

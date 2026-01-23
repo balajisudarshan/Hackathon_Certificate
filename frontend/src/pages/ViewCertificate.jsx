@@ -6,11 +6,13 @@ import { usePDF } from 'react-to-pdf';
 const ViewCertificate = () => {
   const { certId } = useParams();
   const apiUrl = "http://localhost:5173/verify/";
-  const {toPdf,targetRef} = usePDF({filename:`certificate_${certId}.pdf`});
+  const { toPdf, targetRef } = usePDF({ filename: `certificate_${certId}.pdf` });
   const [certificate, setCertificate] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [isValid, setIsValid] = useState(false);
+  // const [status, setStatus] = useState('');
+  const [expired, setExpired] = useState(false);
   const [qrCodeData, setQrCodeData] = useState(null);
   useEffect(() => {
     if (!certId) {
@@ -25,6 +27,7 @@ const ViewCertificate = () => {
         const res = await axios.get(`http://localhost:5050/api/certificates/verify/${certId}`);
         setCertificate(res.data.certificate);
         setIsValid(!!res.data.valid);
+        setExpired(res.data.certificate.expired)
         setQrCodeData(`https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${apiUrl}${certId}`);
 
         console.log("Certificate data:", res.data);
@@ -79,7 +82,8 @@ const ViewCertificate = () => {
     : "—";
 
   const showWatermark = !isValid;
-
+  const showRevoked = status === 'revoked';
+  // const isExpired = expired === true
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-slate-100 to-slate-200 py-10 px-4 sm:px-6 lg:px-8">
       <div className="relative max-w-5xl mx-auto">
@@ -104,8 +108,8 @@ const ViewCertificate = () => {
 
             <div className="my-10 md:my-16">
               <p className="text-xl sm:text-2xl md:text-3xl text-gray-600 mb-6">This is to certify that</p>
-              <h2 className="text-5xl sm:text-6xl md:text-8xl font-serif font-bold text-indigo-950 py-4 px-6 md:px-12 inline-block border-b-4 border-amber-600">
-                {certificate.name}
+              <h2 className="text-5xl sm:text-3xl md:text-5xl font-serif font-bold text-indigo-950 py-4 px-6 md:px-12 inline-block border-b-4 border-amber-600">
+                {certificate.name.toUpperCase()}
               </h2>
             </div>
 
@@ -139,11 +143,7 @@ const ViewCertificate = () => {
                 <p className="text-xs md:text-sm text-gray-600">Authorized Signatory</p>
               </div>
 
-              <div className="text-center">
-                <div className="w-48 md:w-64 h-0.5 bg-gray-800 mx-auto mb-3 md:mb-4"></div>
-                <p className="font-medium text-base md:text-lg">Quantum Coders</p>
-                <p className="text-xs md:text-sm text-gray-600">Official Seal</p>
-              </div>
+            
               {qrCodeData && (
                 <div className="text-center">
                   <img src={qrCodeData} alt="QR Code" className="mx-auto w-32 h-32" />
@@ -167,11 +167,39 @@ const ViewCertificate = () => {
               </div>
             </div>
           )}
+          {showRevoked && (
+            <div className="absolute inset-0 flex items-center justify-center pointer-events-none select-none z-20">
+              <div
+                className="
+                  text-red-700/30 font-black uppercase tracking-[0.6em]
+                  text-[min(15vw,180px)] sm:text-[min(15vw,210px)] md:text-[min(10vw,120px)]
+                  transform rotate-[-40deg] leading-none drop-shadow-2xl text-center
+                "
+                style={{ textShadow: '6px 6px 30px rgba(0,0,0,0.25)' }}
+              >
+                REVOKED
+              </div>
+            </div>
+          )}
+          {expired && (
+            <div className="absolute inset-0 flex items-center justify-center pointer-events-none select-none z-20">
+              <div
+                className="
+                  text-red-700/30 font-black uppercase tracking-[0.6em]
+                  text-[min(15vw,180px)] sm:text-[min(15vw,210px)] md:text-[min(10vw,120px)]
+                  transform rotate-[-40deg] leading-none drop-shadow-2xl text-center
+                "
+                style={{ textShadow: '6px 6px 30px rgba(0,0,0,0.25)' }}
+              >
+                EXPIRED
+              </div>
+            </div>
+          )}
         </div>
 
 
         <div className="mt-8 text-center">
-          {isValid ? (
+          {isValid && status !== 'revoked' && !expired ? (
             <p className="text-green-700 font-medium text-lg md:text-xl">
               ✓ This certificate is currently valid
             </p>

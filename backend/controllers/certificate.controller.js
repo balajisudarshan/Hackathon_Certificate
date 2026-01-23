@@ -1,4 +1,5 @@
 const Certificate = require("../models/Certificate.model");
+const sendCertificateEmail = require("../utils/sendCertificateEmail");
 const crypto = require("crypto");
 
 const generateCertificateHash = (certId, name, course, issuer, dateOfIssue) => {
@@ -8,7 +9,11 @@ const generateCertificateHash = (certId, name, course, issuer, dateOfIssue) => {
 
 const issueCertificate = async (req, res) => {
   try {
-    const { name, course, issuer, startingDate, endingDate } = req.body;
+    const { name, course, email, issuer, startingDate, endingDate } = req.body;
+    const emailLower = email.toLowerCase();
+    if (!emailLower) {
+      return res.status(400).json({ message: "Email is required" });
+    }
     if (!name || !course || !issuer) {
       return res.status(400).json({ message: "All fields are required" });
     }
@@ -53,6 +58,15 @@ const issueCertificate = async (req, res) => {
       endingDate,
     });
     await certificate.save();
+    try {
+      await sendCertificateEmail(
+        emailLower,
+        certificate.certId,
+        certificate.issuer,
+      );
+    } catch (err) {
+      console.error("Email failed:", err.message);
+    }
     res.status(201).json(certificate);
   } catch (err) {
     res.status(500).json({ message: "Server Error", error: err.message });
@@ -174,23 +188,41 @@ const getAllCertificates = async (req, res) => {
     //   },
     //   data: certificates,
     // });
-    
 
-      const certificates = await Certificate.find().sort({ dateOfIssue: -1 });
-      res.status(200).json(certificates);
+    const certificates = await Certificate.find().sort({ dateOfIssue: -1 });
+    res.status(200).json(certificates);
+  } catch (err) {
+    res.status(500).json({
+      message: "Server Error",
+      error: err.message,
+    });
+  }
+};
 
-    } catch (err) {
-      res.status(500).json({
-        message: "Server Error",
-        error: err.message,
-      });
+const deleteCertificateById = async (req, res) => {
+  try {
+    const { certId } = req.params;
+    if (!certId) {
+      return res.status(400).json({ message: "certId is required" });
     }
-  };
+    const certificate = await Certificate.findOne({ certId });
+    if (!certificate) {
+      return res.status(404).json({ message: "Certificate not found" });
+    }
+    await Certificate.deleteOne({ certId });
+    res
+      .status(200)
+      .json({ message: "Certificate deleted successfully", certificate });
+  } catch (err) {
+    res.status(500).json({ message: "Server Error", error: err.message });
+  }
+};
 
-  module.exports = {
-    issueCertificate,
-    verifyCertificate,
-    updateCertificateStatus,
-    getCertificateById,
-    getAllCertificates,
-  };
+module.exports = {
+  issueCertificate,
+  verifyCertificate,
+  updateCertificateStatus,
+  getCertificateById,
+  getAllCertificates,
+  deleteCertificateById,
+};

@@ -2,10 +2,33 @@ import React, { useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Link } from 'react-router'
 import Modal from '../../Modal'
+import axios from 'axios'
+import toast from 'react-hot-toast'
+
 
 const CertificateDisplayCard = ({ cert }) => {
     const [open, setOpen] = useState(false)
-    const [status,setStatus]=useState(cert.status)
+    const [status, setStatus] = useState(cert.status)
+    const handleStatusChange = async () => {
+        try {
+            const res = await axios.put(`http://localhost:5050/api/certificates/status/${cert.certId}`, { status })
+            toast.success("Status updated successfully")
+            setOpen(false)
+        } catch (error) {
+            toast.error("Failed to update status")
+            console.log(error)
+        }
+    }
+    const handleDelete = async () => {
+        try {
+            const res = await axios.delete(`http://localhost:5050/api/certificates/delete/${cert.certId}`)
+            toast.success("Certificate deleted successfully")
+            setOpen(false)
+        } catch (error) {
+            toast.error("Failed to delete certificate")
+            console.log(error)
+        }
+    }
     return (
         <>
             <div className="flex items-center justify-between p-4 border rounded-lg hover:shadow-sm transition">
@@ -29,6 +52,7 @@ const CertificateDisplayCard = ({ cert }) => {
                     >
                         Edit
                     </Button>
+                    <Button variant="outline" size="sm" onClick={handleDelete}>Delete</Button>
                 </div>
             </div>
 
@@ -50,13 +74,14 @@ const CertificateDisplayCard = ({ cert }) => {
                             >
                                 Cancel
                             </Button>
-                            <Button onClick={() => setOpen(false)}>
+                            <Button onClick={(e) => handleStatusChange()}>
                                 Save
                             </Button>
                         </div>
                     </div>
                 </Modal>
             )}
+
         </>
     )
 }
