@@ -15,6 +15,7 @@ const CertificateDisplayCard = ({ cert }) => {
             toast.success("Status updated successfully")
 
             setOpen(false)
+
         } catch (error) {
             toast.error("Failed to update status")
             console.log(error)
@@ -26,6 +27,7 @@ const CertificateDisplayCard = ({ cert }) => {
             toast.success("Certificate deleted successfully")
             res.filter((resu)=>resu.id !== id)
             setOpen(false)
+            window.location.reload();
         } catch (error) {
             toast.error("Failed to delete certificate")
             console.log(error)
