@@ -182,6 +182,15 @@ const AddCertificate = () => {
         <p className="text-center text-sm text-slate-500 mt-6">
           Certificate will be generated with professional layout
         </p>
+
+        <div className="flex justify-center space-x-4 mt-8">
+          <Button variant="outline" onClick={() => window.location.href = '/verify'}>
+            Verify Certificate
+          </Button>
+          <Button variant="outline" onClick={() => window.location.href = '/admin'}>
+            Admin Dashboard
+          </Button>
+        </div>
       </div>
     </div>
   )

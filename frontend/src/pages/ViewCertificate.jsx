@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router';
 import axios from 'axios';
-
+import { Button } from '@/components/ui/button';
+import { usePDF } from 'react-to-pdf';
 const ViewCertificate = () => {
   const { certId } = useParams();
   const apiUrl = "http://localhost:5173/verify/";
-
+  const {toPdf,targetRef} = usePDF({filename:`certificate_${certId}.pdf`});
   const [certificate, setCertificate] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -51,10 +52,10 @@ const ViewCertificate = () => {
 
   if (error || !certificate) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50 p-4">
-        <div className="text-center p-10 bg-white rounded-2xl shadow-xl max-w-md w-full">
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 via-slate-100 to-slate-200 p-4">
+        <div className="text-center p-10 bg-white/80 rounded-2xl shadow-xl max-w-md w-full border border-slate-200">
           <h2 className="text-3xl font-bold text-red-600 mb-4">Error</h2>
-          <p className="text-gray-700 text-lg">{error || "Certificate not found"}</p>
+          <p className="text-slate-700 text-lg">{error || "Certificate not found"}</p>
         </div>
       </div>
     );
@@ -80,9 +81,9 @@ const ViewCertificate = () => {
   const showWatermark = !isValid;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 py-10 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-slate-100 to-slate-200 py-10 px-4 sm:px-6 lg:px-8">
       <div className="relative max-w-5xl mx-auto">
-        <div
+        <div ref={targetRef}
           className={`
             relative bg-white shadow-2xl rounded-2xl overflow-hidden border-8 border-double
             ${isValid ? 'border-amber-700' : 'border-red-700 opacity-85'}
@@ -179,6 +180,19 @@ const ViewCertificate = () => {
               ✗ This certificate is NOT VALID
             </p>
           )}
+
+          <div className="flex justify-center space-x-4 mt-8">
+            <Button variant="outline" onClick={() => window.location.href = '/'}>
+              Issue New Certificate
+            </Button>
+            <Button variant="outline" onClick={() => window.location.href = '/verify'}>
+              Verify Another Certificate
+            </Button>
+            <Button variant="outline" onClick={() => window.location.href = '/admin'}>
+              Admin Dashboard
+            </Button>
+            <Button>Download PDF</Button>
+          </div>
         </div>
       </div>
     </div>
