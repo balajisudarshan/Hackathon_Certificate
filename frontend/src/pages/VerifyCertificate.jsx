@@ -24,7 +24,7 @@ import {
 } from 'lucide-react';
 
 const VerifyCertificate = () => {
-  const [certificateId, setCertificateId] = useState('');
+  const [certificateId, setCertificateId] = useState("");
   const [certificate, setCertificate] = useState(null);
   const [loading, setLoading] = useState(false);
   const [isValid,setIsValid] = useState(false);
@@ -78,7 +78,6 @@ const VerifyCertificate = () => {
       }else{
         errorToast('Certificate is invalid or has been tampered with.');
       }
-      // successToast('Certificate verified successfully!');
     } catch (err) {
       console.error(err);
       
@@ -97,7 +96,6 @@ const VerifyCertificate = () => {
       <Toaster />
       
       <div className="max-w-3xl mx-auto">
-        {/* Header */}
         <div className="text-center mb-10">
           <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-indigo-100 mb-4">
             <ShieldCheck className="h-8 w-8 text-indigo-600" />
@@ -110,7 +108,6 @@ const VerifyCertificate = () => {
           </p>
         </div>
 
-        {/* Main Card */}
         <Card className="border border-slate-200 shadow-xl overflow-hidden">
           <CardHeader className="bg-gradient-to-r from-indigo-50 to-blue-50 pb-6">
             <CardTitle className="text-2xl text-center text-slate-800">
@@ -122,7 +119,6 @@ const VerifyCertificate = () => {
           </CardHeader>
 
           <CardContent className="pt-8 pb-10 px-6 md:px-10">
-            {/* Form */}
             <form onSubmit={handleVerify} className="max-w-xl mx-auto mb-10">
               <div className="flex flex-col sm:flex-row gap-4">
                 <div className="flex-1">
@@ -152,7 +148,6 @@ const VerifyCertificate = () => {
               </div>
             </form>
 
-            {/* Result */}
             {certificate && isValid&&  (
               <div className="space-y-8 animate-fade-in">
                 <div className="flex flex-col sm:flex-row items-center justify-between gap-4 bg-green-50 p-5 rounded-xl border border-green-200">

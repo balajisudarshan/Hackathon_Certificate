@@ -16,6 +16,7 @@ import axios from 'axios';
 import toast from 'react-hot-toast';
 import { Spinner } from '@/components/ui/spinner';
 import { useAuth } from '@/context/AuthContext';
+import { useNavigate } from 'react-router-dom';
 export default function LoginPage() {
 
     const [showPassword, setShowPassword] = useState(false);
@@ -25,6 +26,7 @@ export default function LoginPage() {
     const [loading, setLoading] = useState(false)
 
     const {login} = useAuth();
+    const navigate = useNavigate();
 
     const handleLogin = async (e) => {
         e.preventDefault();
@@ -42,6 +44,7 @@ export default function LoginPage() {
             localStorage.setItem("token",res.data.token)
             localStorage.setItem("Name",res.data.name)
             login(res.data)
+            navigate('/admin')
         } catch (error) {
             console.log(error.response.data)
             toast.error("Login Failed: " + (error.response?.data || error.message));

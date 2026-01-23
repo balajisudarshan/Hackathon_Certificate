@@ -1,16 +1,16 @@
-// ViewCertificate.jsx
 import React, { useState, useEffect } from 'react';
-import { useParams } from 'react-router'; // corrected import (v6 uses -dom)
+import { useParams } from 'react-router';
 import axios from 'axios';
 
 const ViewCertificate = () => {
   const { certId } = useParams();
+  const apiUrl = "http://localhost:5173/verify/";
 
   const [certificate, setCertificate] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [isValid, setIsValid] = useState(false);
-
+  const [qrCodeData, setQrCodeData] = useState(null);
   useEffect(() => {
     if (!certId) {
       setError("No certificate ID provided in the URL");
@@ -19,10 +19,13 @@ const ViewCertificate = () => {
     }
 
     const fetchCertificate = async () => {
+      console.log(apiUrl)
       try {
         const res = await axios.get(`http://localhost:5050/api/certificates/verify/${certId}`);
         setCertificate(res.data.certificate);
-        setIsValid(!!res.data.valid); // force boolean
+        setIsValid(!!res.data.valid);
+        setQrCodeData(`https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${apiUrl}${certId}`);
+
         console.log("Certificate data:", res.data);
       } catch (err) {
         console.error(err);
@@ -68,10 +71,10 @@ const ViewCertificate = () => {
 
   const issueDate = dateOfIssue
     ? new Date(dateOfIssue).toLocaleDateString('en-IN', {
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric',
-      })
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+    })
     : "—";
 
   const showWatermark = !isValid;
@@ -85,7 +88,7 @@ const ViewCertificate = () => {
             ${isValid ? 'border-amber-700' : 'border-red-700 opacity-85'}
           `}
         >
-          
+
           <div className="absolute inset-0 opacity-[0.07] pointer-events-none">
             <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_80%,#fbbf24_0%,transparent_60%)]" />
             <div className="absolute inset-0 bg-[radial-gradient(circle_at_80%_20%,#c084fc_0%,transparent_60%)]" />
@@ -128,7 +131,6 @@ const ViewCertificate = () => {
               </div>
             </div>
 
-            {/* Signature */}
             <div className="flex flex-col sm:flex-row justify-center sm:justify-between items-center sm:items-end gap-12 sm:gap-0 mt-16 px-4 md:px-16">
               <div className="text-center">
                 <div className="w-48 md:w-64 h-0.5 bg-gray-800 mx-auto mb-3 md:mb-4"></div>
@@ -141,10 +143,15 @@ const ViewCertificate = () => {
                 <p className="font-medium text-base md:text-lg">Quantum Coders</p>
                 <p className="text-xs md:text-sm text-gray-600">Official Seal</p>
               </div>
+              {qrCodeData && (
+                <div className="text-center">
+                  <img src={qrCodeData} alt="QR Code" className="mx-auto w-32 h-32" />
+                </div>
+              )}
             </div>
           </div>
 
-          
+
           {showWatermark && (
             <div className="absolute inset-0 flex items-center justify-center pointer-events-none select-none z-20">
               <div
@@ -161,7 +168,7 @@ const ViewCertificate = () => {
           )}
         </div>
 
-       
+
         <div className="mt-8 text-center">
           {isValid ? (
             <p className="text-green-700 font-medium text-lg md:text-xl">

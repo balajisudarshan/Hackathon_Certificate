@@ -1,8 +1,5 @@
 const bcrypt = require("bcryptjs");
 
-/**
- * Generate certificate hash (store this in DB)
- */
 const generateCertificateHash = async (
   certId,
   name,
@@ -14,9 +11,6 @@ const generateCertificateHash = async (
   return await bcrypt.hash(dataString, 10);
 };
 
-/**
- * Verify certificate integrity (tamper check)
- */
 const verifyCertificate = async (
   certId,
   name,
@@ -29,10 +23,7 @@ const verifyCertificate = async (
   return await bcrypt.compare(dataString, storedHash);
 };
 
-/* ---------------- TEST ---------------- */
-
 (async () => {
-  // Generate original hash (store in DB)
   const storedHash = await generateCertificateHash(
     "CERT-2024-000001",
     "John Doe",
@@ -43,7 +34,6 @@ const verifyCertificate = async (
 
   console.log("Stored Hash:", storedHash);
 
-  // Valid verification (same data)
   const valid = await verifyCertificate(
     "CERT-2024-000001",
     "John Doe",
@@ -53,9 +43,8 @@ const verifyCertificate = async (
     storedHash,
   );
 
-  console.log("Certificate valid:", valid); // true
+  console.log("Certificate valid:", valid);
 
-  // Tampered verification (course changed)
   const tampered = await verifyCertificate(
     "CERT-2024-000001",
     "John Doe",
@@ -65,7 +54,7 @@ const verifyCertificate = async (
     storedHash,
   );
 
-  console.log("Certificate valid after tampering:", tampered); // false
+  console.log("Certificate valid after tampering:", tampered);
 })();
 
 module.exports = generateCertificateHash;

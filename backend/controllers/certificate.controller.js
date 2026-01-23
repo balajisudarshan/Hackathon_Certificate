@@ -150,7 +150,6 @@ const getAllCertificates = async (req, res) => {
       query.course = course;
     }
 
-    // example: valid=true / valid=false
     if (valid !== undefined) {
       query.expired = valid === "false";
     }

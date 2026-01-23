@@ -1,5 +1,14 @@
 import React, { useEffect, useState } from 'react'
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
+import axios from 'axios'
+import toast from 'react-hot-toast'
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle
+} from '@/components/ui/card'
 import { Label } from '@/components/ui/label'
 import { Input } from '@/components/ui/input'
 import {
@@ -7,12 +16,11 @@ import {
   SelectContent,
   SelectItem,
   SelectTrigger,
-  SelectValue,
+  SelectValue
 } from '@/components/ui/select'
 import { Button } from '@/components/ui/button'
 import { CalendarIcon } from 'lucide-react'
 import { Separator } from '@/components/ui/separator'
-import axios from 'axios'
 
 const AddCertificate = () => {
   const [expires, setExpires] = useState('')
@@ -23,46 +31,63 @@ const AddCertificate = () => {
   const [issuer, setIssuer] = useState('')
   const [expiryDate, setExpiryDate] = useState('')
   const [issuersData, setIssuersData] = useState([])
+  const [loading, setLoading] = useState(false)
 
   useEffect(() => {
-    const getIssuersData = async () => {
-      try {
-        const res = await axios.get('http://localhost:5050/api/auth/getallusers')
-        setIssuersData(res.data)
-      } catch (error) {
-        console.log(error)
-      }
-    }
-    getIssuersData()
+    axios
+      .get('http://localhost:5050/api/auth/getallusers')
+      .then(res => setIssuersData(res.data))
+      .catch(() => toast.error('Failed to load issuers'))
   }, [])
 
+  const resetForm = () => {
+    setExpires('')
+    setName('')
+    setCourse('')
+    setStartDate('')
+    setEndDate('')
+    setIssuer('')
+    setExpiryDate('')
+  }
 
-  const postDetails = async()=>{
+  const postDetails = async () => {
+    if (!name || !course || !issuer || !startDate || !endDate) {
+      toast.error('Please fill all required fields')
+      return
+    }
+
+    setLoading(true)
     try {
-        const res = await axios.post('http://localhost:5050/api/certificates/issue',{
-            name,
-            course,
-            issuer,
-            startDate,
-            endDate,
-            expiryDate
-        });
-        console.log(res.data)
+      const res = await axios.post('http://localhost:5050/api/certificates/issue', {
+        name,
+        course,
+        issuer,
+        startDate,
+        endDate,
+        expiryDate: expires === 'yes' ? expiryDate : null
+      })
+
+      toast.success('Certificate issued successfully')
+      resetForm()
+      console.log(res.data)
     } catch (error) {
-        console.log(error)
+      toast.error('Failed to issue certificate')
+      console.log(error)
+    } finally {
+      setLoading(false)
     }
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-slate-100 to-slate-200 py-10 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-slate-100 to-slate-200 py-10 px-4">
       <div className="mx-auto max-w-2xl">
-        <Card className="border-slate-200 shadow-xl backdrop-blur-sm bg-white/80">
-          <CardHeader className="space-y-1 pb-6 text-center sm:text-left">
-            <CardTitle className="text-3xl font-bold tracking-tight text-slate-900 text-center">
+        <Card className="border-slate-200 shadow-xl bg-white/80">
+          <CardHeader className="pb-6 text-center">
+            <CardTitle className="text-3xl font-bold text-slate-900">
               Issue New Certificate
             </CardTitle>
-            <CardDescription className="text-base text-slate-600 text-center">
-              Enter the details below to generate and issue a professional certificate.
+            <CardDescription className="text-slate-600">
+              Enter the details below to generate and issue a certificate
             </CardDescription>
           </CardHeader>
 
@@ -70,29 +95,20 @@ const AddCertificate = () => {
 
           <CardContent className="space-y-6">
             <div className="space-y-2">
-              <Label className="text-slate-700 font-medium">
-                Recipient's Full Name
-              </Label>
-              <Input
-                placeholder="e.g. Balaji Sudarshan Reddy"
-                className="h-11"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-              />
+              <Label>Recipient's Full Name</Label>
+              <Input value={name} onChange={e => setName(e.target.value)} />
             </div>
 
             <div className="space-y-2">
-              <Label className="text-slate-700 font-medium">
-                Issued By (Issuer)
-              </Label>
+              <Label>Issued By (Issuer)</Label>
               <Select value={issuer} onValueChange={setIssuer}>
-                <SelectTrigger className="w-full h-11">
-                  <SelectValue placeholder="Select issuer / organization" />
+                <SelectTrigger className="h-11">
+                  <SelectValue placeholder="Select issuer" />
                 </SelectTrigger>
                 <SelectContent>
-                  {issuersData.map((issuer) => (
-                    <SelectItem key={issuer._id} value={issuer.organization}>
-                      {issuer.organization}
+                  {issuersData.map(i => (
+                    <SelectItem key={i._id} value={i.organization}>
+                      {i.organization}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -100,84 +116,65 @@ const AddCertificate = () => {
             </div>
 
             <div className="space-y-2">
-              <Label className="text-slate-700 font-medium">
-                Course / Program Name
-              </Label>
-              <Input
-                placeholder="Full Stack Development"
-                className="h-11"
-                value={course}
-                onChange={(e) => setCourse(e.target.value)}
-              />
+              <Label>Course / Program Name</Label>
+              <Input value={course} onChange={e => setCourse(e.target.value)} />
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
               <div className="space-y-2">
-                <Label className="flex items-center gap-2 text-slate-700 font-medium">
+                <Label className="flex items-center gap-2">
                   <CalendarIcon className="h-4 w-4" />
                   Start Date
                 </Label>
-                <Input
-                  type="date"
-                  className="h-11"
-                  value={startDate}
-                  onChange={(e) => setStartDate(e.target.value)}
-                />
+                <Input type="date" value={startDate} onChange={e => setStartDate(e.target.value)} />
               </div>
 
               <div className="space-y-2">
-                <Label className="flex items-center gap-2 text-slate-700 font-medium">
+                <Label className="flex items-center gap-2">
                   <CalendarIcon className="h-4 w-4" />
-                  End Date / Completion Date
+                  End Date
                 </Label>
-                <Input
-                  type="date"
-                  className="h-11"
-                  value={endDate}
-                  onChange={(e) => setEndDate(e.target.value)}
-                />
+                <Input type="date" value={endDate} onChange={e => setEndDate(e.target.value)} />
               </div>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
               <div className="space-y-2">
-                <Label className="text-slate-700 font-medium">
-                  Does the certificate expire?
-                </Label>
+                <Label>Does the certificate expire?</Label>
                 <Select value={expires} onValueChange={setExpires}>
-                  <SelectTrigger className="w-full h-11">
-                    <SelectValue placeholder="Select an option" />
+                  <SelectTrigger className="h-11">
+                    <SelectValue placeholder="Select option" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="no">No, it does not expire</SelectItem>
-                    <SelectItem value="yes">Yes, it expires</SelectItem>
+                    <SelectItem value="no">No</SelectItem>
+                    <SelectItem value="yes">Yes</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
 
               <div className="space-y-2">
-                <Label className="flex items-center gap-2 text-slate-700 font-medium">
+                <Label className="flex items-center gap-2">
                   <CalendarIcon className="h-4 w-4" />
                   Expiry Date
                 </Label>
                 <Input
                   type="date"
-                  className="h-11"
                   value={expiryDate}
-                  onChange={(e) => setExpiryDate(e.target.value)}
+                  onChange={e => setExpiryDate(e.target.value)}
                   disabled={expires !== 'yes'}
                 />
               </div>
             </div>
           </CardContent>
 
-          <CardFooter className="flex justify-end pt-2 pb-6 px-6">
+          <CardFooter className="flex justify-end pb-6">
             <Button
               size="lg"
-              className="bg-gradient-to-r from-sky-600 to-indigo-600 text-white px-10"
               onClick={postDetails}
+              disabled={loading}
+              className="px-10 bg-gradient-to-r from-sky-600 to-indigo-600"
             >
-              Issue Certificate
+              {loading ? 'Issuing…' : 'Issue Certificate'}
             </Button>
           </CardFooter>
         </Card>

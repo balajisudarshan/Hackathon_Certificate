@@ -1,4 +1,3 @@
-// validators/auth.validator.js
 const { body } = require("express-validator");
 
 exports.registerValidator = [
