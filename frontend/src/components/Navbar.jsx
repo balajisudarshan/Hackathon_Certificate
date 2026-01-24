@@ -4,7 +4,9 @@ import { Button } from './ui/button';
 import { useAuth } from '../context/AuthContext';
 
 const Navbar = () => {
-  const { user, logout } = useAuth();
+  const {  logout } = useAuth();
+  const user = JSON.parse(localStorage.getItem("user"))
+  // console.log(user)
   const navigate = useNavigate();
 
   const handleLogout = () => {

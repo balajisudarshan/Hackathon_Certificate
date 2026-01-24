@@ -121,3 +121,8 @@
     @apply bg-background text-foreground;
   }
 }
+.pdf-safe * {
+  color: #000 !important;
+  background-color: transparent !important;
+  border-color: #000 !important;
+}

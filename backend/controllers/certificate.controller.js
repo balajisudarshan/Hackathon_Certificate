@@ -74,6 +74,8 @@ const issueCertificate = async (req, res) => {
   }
 };
 
+
+
 const verifyCertificate = async (req, res) => {
   try {
     const { certId } = req.params;

@@ -4,15 +4,16 @@ import { Link } from 'react-router'
 import Modal from '../../Modal'
 import axios from 'axios'
 import toast from 'react-hot-toast'
+import { Badge } from './badge'
 
-
-const CertificateDisplayCard = ({ cert }) => {
+const CertificateDisplayCard = ({ cert, onDelete }) => {
     const [open, setOpen] = useState(false)
     const [status, setStatus] = useState(cert.status)
     const handleStatusChange = async () => {
         try {
             const res = await axios.put(`http://localhost:5050/api/certificates/status/${cert.certId}`, { status })
             toast.success("Status updated successfully")
+
             setOpen(false)
 
         } catch (error) {
@@ -24,8 +25,9 @@ const CertificateDisplayCard = ({ cert }) => {
         try {
             const res = await axios.delete(`http://localhost:5050/api/certificates/delete/${cert.certId}`)
             toast.success("Certificate deleted successfully")
+            // res.filter((resu)=>resu.id !== id)
             setOpen(false)
-            window.location.reload();
+            onDelete(cert.certId);
         } catch (error) {
             toast.error("Failed to delete certificate")
             console.log(error)
@@ -38,8 +40,9 @@ const CertificateDisplayCard = ({ cert }) => {
                     <p className="font-medium">{cert.name}</p>
                     <p className="text-sm text-gray-600">{cert.course}</p>
                     <p className="text-xs text-gray-500">
-                        ID: {cert.certId} • Issued: {cert.issuedDate}
+                        ID: {cert.certId} • Issued: {new Date(cert.dateOfIssue).toLocaleDateString()} • {cert.status}
                     </p>
+
                 </div>
 
                 <div className="flex space-x-2">
