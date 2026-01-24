@@ -58,4 +58,42 @@ const sendCertificateEmail = async (to, certId, organization) => {
   }
 };
 
-module.exports = sendCertificateEmail;
+const sendExpiryNotificationEmail = async (to, certId, organization) => {
+  const mailOptions = {
+    from: `Certificate App<${process.env.EMAIL_USER}>`,
+    to: to,
+    subject: `Your Certificate is Expired `,
+    html: `
+        <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 600px; margin: 20px auto; border: 1px solid #e0e6ed; border-radius: 8px; overflow: hidden; background-color: #ffffff;">
+    
+    <div style="background-color: #b30000; height: 10px;"></div>  
+    <div style="padding: 40px; text-align: center;">
+        <h1 style="color: #660000; margin-bottom: 20px;">Certificate Expired</h1>
+        <p style="color: #4a5568; font-size: 16px; line-height: 1.6;">
+            Your certificate has expired.
+        </p>
+        <div style="background-color: #f0f7ff; border-radius: 6px; padding: 15px; margin: 25px 0; border: 1px dashed #b30000;">         
+            <p style="margin: 0; color: #b30000; font-weight: bold; font-size: 14px;">
+                Certificate ID: <span style="color: #333;">${certId}</span>
+            </p>
+        </div>
+        <p style="color: #4a5568; font-size: 14px; margin-bottom: 30px;">
+            Please contact ${organization} for renewal options.
+        </p>        
+    </div>
+    <div style="background-color: #f8fafc; padding: 20px; text-align: center; border-top: 1px solid #e0e6ed;">
+        <p style="margin: 0; font-size: 12px; color: #94a3b8;">
+            © ${new Date().getFullYear()} ${organization}. All rights reserved.
+        </p>
+    </div>
+</div>
+        `,
+  };
+  try {
+    await transporter.sendMail(mailOptions);
+  } catch (err) {
+    console.error("Error sending expiry email:", err);
+  }
+};
+
+module.exports = { sendExpiryNotificationEmail, sendCertificateEmail };

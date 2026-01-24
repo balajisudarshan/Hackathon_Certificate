@@ -1,5 +1,5 @@
 const Certificate = require("../models/Certificate.model");
-const sendCertificateEmail = require("../utils/sendCertificateEmail");
+const { sendCertificateEmail } = require("../utils/sendCertificateEmail");
 const crypto = require("crypto");
 
 const generateCertificateHash = (certId, name, course, issuer, dateOfIssue) => {
@@ -51,6 +51,7 @@ const issueCertificate = async (req, res) => {
       certId,
       name,
       course,
+      email: emailLower,
       issuer,
       dateOfIssue,
       hashValue,

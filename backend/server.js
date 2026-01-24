@@ -12,6 +12,12 @@ const PORT = process.env.PORT;
 app.use(cors());
 app.use(rateLimiter);
 app.use(express.json());
+
+// Health check endpoint (won't be rate limited - prevents Render spindown)
+app.get("/health", (req, res) => {
+  res.status(200).json({ status: "OK", timestamp: new Date() });
+});
+
 app.use("/api/certificates", certificateRoutes);
 app.use("/api/auth", authRoutes);
 
