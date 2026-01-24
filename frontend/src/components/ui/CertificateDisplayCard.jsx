@@ -10,8 +10,9 @@ const CertificateDisplayCard = ({ cert, onDelete }) => {
     const [open, setOpen] = useState(false)
     const [status, setStatus] = useState(cert.status)
     const handleStatusChange = async () => {
+        const apiUrl = import.meta.env.VITE_API_URL;
         try {
-            const res = await axios.put(`http://localhost:5050/api/certificates/status/${cert.certId}`, { status })
+            const res = await axios.put(`${apiUrl}/certificates/status/${cert.certId}`, { status })
             toast.success("Status updated successfully")
 
             setOpen(false)
@@ -22,8 +23,9 @@ const CertificateDisplayCard = ({ cert, onDelete }) => {
         }
     }
     const handleDelete = async () => {
+        const apiUrl = import.meta.env.VITE_API_URL;
         try {
-            const res = await axios.delete(`http://localhost:5050/api/certificates/delete/${cert.certId}`)
+            const res = await axios.delete(`${apiUrl}/certificates/delete/${cert.certId}`)
             toast.success("Certificate deleted successfully")
             // res.filter((resu)=>resu.id !== id)
             setOpen(false)

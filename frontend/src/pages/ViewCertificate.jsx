@@ -8,7 +8,8 @@ import { toPng } from 'html-to-image'
 import signature from '@/assets/signature.jpg'
 const ViewCertificate = () => {
   const { certId } = useParams();
-  const apiUrl = `http://localhost:5173/qr/verify/${certId}`;
+  const frontendUrl = import.meta.env.VITE_FRONTEND_URL;
+  const apiUrl = `${frontendUrl}/qr/verify/${certId}`;
   // const { toPdf, targetRef } = usePDF({ filename: `certificate_${certId}.pdf` });
   const [certificate, setCertificate] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -30,12 +31,14 @@ const ViewCertificate = () => {
 
     const fetchCertificate = async () => {
       console.log(apiUrl)
+      const apiBaseUrl = import.meta.env.VITE_API_URL;
       try {
-        const res = await axios.get(`http://localhost:5050/api/certificates/verify/${certId}`);
+        const res = await axios.get(`${apiBaseUrl}/certificates/verify/${certId}`);
         setCertificate(res.data.certificate);
         setIsValid(!!res.data.valid);
         setExpired(res.data.certificate.expired)
-        setQrCodeData(`https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${apiUrl}`);
+        const qrApi = import.meta.env.VITE_QR_API;
+        setQrCodeData(`${qrApi}/?size=150x150&data=${apiUrl}`);
 
         console.log("Certificate data:", res.data);
       } catch (err) {
@@ -333,7 +336,7 @@ const ViewCertificate = () => {
 
             {qrCodeData && (
               <>
-                <a href={`http://localhost:5173/qr/verify/${certId}`} className='link text-blue-950 underline z-100'>Verify it here</a>
+                <a href={`${frontendUrl}/qr/verify/${certId}`} className='link text-blue-950 underline z-100'>Verify it here</a>
                 <img
                   src={qrCodeData}
                   alt="QR Code"

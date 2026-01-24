@@ -40,9 +40,10 @@ const AdminDashboard = () => {
 
     useEffect(() => {
         const fetchData = async () => {
+            const apiUrl = import.meta.env.VITE_API_URL;
             try {
                 const certRes = await axios.get(
-                    'http://localhost:5050/api/certificates/getAll',
+                    `${apiUrl}/certificates/getAll`,
                     {
                         headers: {
                             Authorization: `Bearer ${localStorage.getItem('token')}`,
@@ -54,7 +55,7 @@ const AdminDashboard = () => {
                 setFilteredCertificates(certRes.data)
 
                 const userRes = await axios.get(
-                    'http://localhost:5050/api/auth/getallusers'
+                    `${apiUrl}/auth/getallusers`
                 )
                 setUsers(userRes.data)
             } catch (err) {
@@ -87,9 +88,10 @@ const AdminDashboard = () => {
 
     const handleAddUser = async () => {
         setLoading(true)
+        const apiUrl = import.meta.env.VITE_API_URL;
         try {
             await axios.post(
-                'http://localhost:5050/api/auth/register',
+                `${apiUrl}/auth/register`,
                 { name, email, organization, password },
                 {
                     headers: {

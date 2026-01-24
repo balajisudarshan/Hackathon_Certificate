@@ -35,8 +35,9 @@ const AddCertificate = () => {
   const [loading, setLoading] = useState(false)
 
   useEffect(() => {
+    const apiUrl = import.meta.env.VITE_API_URL;
     axios
-      .get('http://localhost:5050/api/auth/getallusers')
+      .get(`${apiUrl}/auth/getallusers`)
       .then(res => setIssuersData(res.data))
       .catch(() => toast.error('Failed to load issuers'))
   }, [])
@@ -59,8 +60,9 @@ const AddCertificate = () => {
     }
 
     setLoading(true)
+    const apiUrl = import.meta.env.VITE_API_URL;
     try {
-      const res = await axios.post('http://localhost:5050/api/certificates/issue', {
+      const res = await axios.post(`${apiUrl}/certificates/issue`, {
         name,
         course,
         issuer,

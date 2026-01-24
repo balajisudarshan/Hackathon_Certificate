@@ -66,9 +66,10 @@ const VerifyCertificate = () => {
     setLoading(true)
     setCertificate(null)
 
+    const apiUrl = import.meta.env.VITE_API_URL;
     try {
       const response = await axios.get(
-        `http://localhost:5050/api/certificates/verify/${certificateId.trim()}`
+        `${apiUrl}/certificates/verify/${certificateId.trim()}`
       )
 
       setCertificate(response.data.certificate)
@@ -80,7 +81,7 @@ const VerifyCertificate = () => {
     } catch (err) {
       errorToast(
         err.response?.data?.message ||
-          'Failed to verify certificate. Please try again.'
+        'Failed to verify certificate. Please try again.'
       )
     } finally {
       setLoading(false)

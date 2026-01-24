@@ -27,8 +27,9 @@ const QrVerification = () => {
   useEffect(() => {
     if (!certId) return
     setLoading(true)
+    const apiUrl = import.meta.env.VITE_API_URL;
     axios
-      .get(`http://localhost:5050/api/certificates/verify/${certId}`)
+      .get(`${apiUrl}/certificates/verify/${certId}`)
       .then(res => {
         setCertificate(res.data.certificate)
         setIsValid(res.data.valid)
@@ -147,7 +148,7 @@ const QrVerification = () => {
                   </div>
                 </div>
 
-               
+
               </div>
             )}
 
