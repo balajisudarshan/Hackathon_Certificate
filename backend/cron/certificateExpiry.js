@@ -1,6 +1,6 @@
 const cron = require("node-cron");
 const Certificate = require("../models/Certificate.model");
-const { sendCertificateExpiryEmail } = require("../utils/sendCertificateEmail");
+// const { sendCertificateExpiryEmail } = require("../utils/sendCertificateEmail"); // Disabled for free tier deployment
 
 const certificateExpiryCron = cron.schedule("0 * * * *", async () => {
   try {
@@ -25,19 +25,20 @@ const certificateExpiryCron = cron.schedule("0 * * * *", async () => {
     );
 
     for (const cert of expiredCertificates) {
-      try {
-        await sendCertificateExpiryEmail(
-          cert.email,
-          cert.certId,
-          cert.organization,
-        );
-        console.log(`[CRON] Expiry email sent for certificate: ${cert.certId}`);
-      } catch (emailError) {
-        console.error(
-          `[CRON] Failed to send email for ${cert.certId}:`,
-          emailError,
-        );
-      }
+      // Email notification disabled for free tier deployment
+      // try {
+      //   await sendCertificateExpiryEmail(
+      //     cert.email,
+      //     cert.certId,
+      //     cert.organization,
+      //   );
+      //   console.log(`[CRON] Expiry email sent for certificate: ${cert.certId}`);
+      // } catch (emailError) {
+      //   console.error(
+      //     `[CRON] Failed to send email for ${cert.certId}:`,
+      //     emailError,
+      //   );
+      // }
     }
 
     console.log(

@@ -7,7 +7,7 @@ const authRoutes = require("./routes/auth.route");
 const rateLimiter = require("./middleware/rate-limiter.middleware");
 const certificateRoutes = require("./routes/certificate.route");
 const app = express();
-const PORT = process.env.PORT;
+const PORT = process.env.PORT || 3000;
 
 app.use(cors());
 app.use(rateLimiter);
@@ -21,8 +21,13 @@ app.get("/health", (req, res) => {
 app.use("/api/certificates", certificateRoutes);
 app.use("/api/auth", authRoutes);
 
-connectDb().then(() => {
-  app.listen(PORT, () => {
-    console.log(`Server running on  http://localhost:${PORT}`);
+connectDb()
+  .then(() => {
+    app.listen(PORT, () => {
+      console.log(`[SERVER] Running on port ${PORT}`);
+    });
+  })
+  .catch((err) => {
+    console.error("[SERVER] Failed to start:", err.message);
+    process.exit(1);
   });
-});

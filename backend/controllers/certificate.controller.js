@@ -1,5 +1,5 @@
 const Certificate = require("../models/Certificate.model");
-const { sendCertificateEmail } = require("../utils/sendCertificateEmail");
+// const { sendCertificateEmail } = require("../utils/sendCertificateEmail"); // Disabled for free tier deployment
 const crypto = require("crypto");
 
 const generateCertificateHash = (certId, name, course, issuer, dateOfIssue) => {
@@ -59,22 +59,21 @@ const issueCertificate = async (req, res) => {
       endingDate,
     });
     await certificate.save();
-    try {
-      await sendCertificateEmail(
-        emailLower,
-        certificate.certId,
-        certificate.issuer,
-      );
-    } catch (err) {
-      console.error("Email failed:", err.message);
-    }
+    // Email sending disabled for free tier deployment
+    // try {
+    //   await sendCertificateEmail(
+    //     emailLower,
+    //     certificate.certId,
+    //     certificate.issuer,
+    //   );
+    // } catch (err) {
+    //   console.error("Email failed:", err.message);
+    // }
     res.status(201).json(certificate);
   } catch (err) {
     res.status(500).json({ message: "Server Error", error: err.message });
   }
 };
-
-
 
 const verifyCertificate = async (req, res) => {
   try {
