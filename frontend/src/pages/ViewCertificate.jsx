@@ -1,14 +1,14 @@
-import React, { useState, useEffect, useRef} from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useParams } from 'react-router';
 import axios from 'axios';
 import { Button } from '@/components/ui/button';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
-import {toPng} from 'html-to-image'
-
+import { toPng } from 'html-to-image'
+import signature from '@/assets/signature.jpg'
 const ViewCertificate = () => {
   const { certId } = useParams();
-  const apiUrl = "http://localhost:5173/verify/";
+  const apiUrl = `http://localhost:5173/qr/verify/${certId}`;
   // const { toPdf, targetRef } = usePDF({ filename: `certificate_${certId}.pdf` });
   const [certificate, setCertificate] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -26,7 +26,7 @@ const ViewCertificate = () => {
       return;
     }
 
-    
+
 
     const fetchCertificate = async () => {
       console.log(apiUrl)
@@ -35,7 +35,7 @@ const ViewCertificate = () => {
         setCertificate(res.data.certificate);
         setIsValid(!!res.data.valid);
         setExpired(res.data.certificate.expired)
-        setQrCodeData(`https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${apiUrl}${certId}`);
+        setQrCodeData(`https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${apiUrl}`);
 
         console.log("Certificate data:", res.data);
       } catch (err) {
@@ -48,30 +48,30 @@ const ViewCertificate = () => {
 
     fetchCertificate();
   }, [certId]);
-  
+
   const downloadPdf = async () => {
     const node = targetRef.current
     if (!node) return
-  
+
     const dataUrl = await toPng(node, {
       cacheBust: true,
       pixelRatio: 2
     })
-  
+
     const pdf = new jsPDF('landscape', 'pt', 'a4')
     const pdfWidth = pdf.internal.pageSize.getWidth()
     const img = new Image()
-  
+
     img.src = dataUrl
     await img.decode()
-  
+
     const pdfHeight = (img.height * pdfWidth) / img.width
-  
+
     pdf.addImage(dataUrl, 'PNG', 0, 0, pdfWidth, pdfHeight)
     pdf.save(`certificate_${certId}.pdf`)
   }
-  
-  
+
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
@@ -255,16 +255,20 @@ const ViewCertificate = () => {
   //     </div>
   //   </div>
   // );
+
+
+
+
   return (
-    <div className="min-h-screen bg-neutral-100 flex items-center justify-center p-6">
-      <div className="w-full max-w-4xl">
+    <div className="min-h-screen bg-neutral-100 flex items-center justify-center p-1  ">
+      <div className="w-full max-w-5xl">
         <div
           ref={targetRef}
-          className="relative bg-white px-16 py-20 rounded-lg shadow-xl text-center"
+          className="relative bg-white px-16 py-15 rounded-lg shadow-xl text-center"
         >
           <div className="absolute inset-6 border border-neutral-300 rounded-md"></div>
-  
-          <div className="relative mb-10">
+
+          <div className="relative mb-3">
             <p className="uppercase tracking-[0.3em] text-sm text-neutral-500 mb-4">
               Certificate
             </p>
@@ -272,38 +276,38 @@ const ViewCertificate = () => {
               Certificate of Completion
             </h1>
           </div>
-  
-          <p className="text-neutral-600 text-lg mb-10">
+
+          <p className="text-neutral-600 text-lg mb-5">
             This is to certify that
           </p>
-  
+
           <h2 className="text-4xl font-semibold text-neutral-900 border-b border-neutral-400 inline-block px-10 pb-2 mb-12">
             {certificate.name.toUpperCase()}
           </h2>
-  
-          <p className="text-neutral-600 text-lg mb-4">
+
+          <p className="text-neutral-600 text-lg mb-3">
             has successfully completed the course
           </p>
-  
-          <h3 className="text-3xl font-medium text-neutral-800 mb-16">
+
+          <h3 className="text-3xl font-medium text-neutral-800 mb-10">
             {course}
           </h3>
-  
-          <div className="grid grid-cols-3 gap-12 text-sm text-neutral-700 mb-20">
+
+          <div className="grid grid-cols-3 gap-12 text-sm text-neutral-700 mb-10">
             <div>
               <p className="uppercase tracking-wider text-neutral-400 mb-1">
                 Issued By
               </p>
               <p className="font-medium">{issuer}</p>
             </div>
-  
+
             <div>
               <p className="uppercase tracking-wider text-neutral-400 mb-1">
                 Date
               </p>
               <p className="font-medium">{issueDate}</p>
             </div>
-  
+
             <div>
               <p className="uppercase tracking-wider text-neutral-400 mb-1">
                 Certificate ID
@@ -311,25 +315,34 @@ const ViewCertificate = () => {
               <p className="font-mono">{id}</p>
             </div>
           </div>
-  
+
           <div className="flex justify-between items-end">
             <div className="text-left">
-              <div className="w-52 h-px bg-neutral-800 mb-2"></div>
+
+
+              <img src={signature} className='w-50' />
+
+              <div className="w-52 h-px bg-neutral-800 mb-2">
+
+              </div>
               <p className="font-medium">{issuer}</p>
               <p className="text-xs text-neutral-500">
                 Authorized Signatory
               </p>
             </div>
-  
+
             {qrCodeData && (
-              <img
-                src={qrCodeData}
-                alt="QR Code"
-                className="w-24 h-24"
-              />
+              <>
+                <a href={`http://localhost:5173/qr/verify/${certId}`} className='link text-blue-950 underline z-100'>Verify it here</a>
+                <img
+                  src={qrCodeData}
+                  alt="QR Code"
+                  className="w-24 h-24"
+                />
+              </>
             )}
           </div>
-  
+
           {!isValid && (
             <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
               <span className="text-red-600/10 text-7xl font-bold rotate-[-25deg] tracking-widest">
@@ -337,7 +350,7 @@ const ViewCertificate = () => {
               </span>
             </div>
           )}
-  
+
           {status === 'revoked' && (
             <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
               <span className="text-red-600/10 text-7xl font-bold rotate-[-25deg] tracking-widest">
@@ -345,7 +358,7 @@ const ViewCertificate = () => {
               </span>
             </div>
           )}
-  
+
           {expired && (
             <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
               <span className="text-red-600/10 text-7xl font-bold rotate-[-25deg] tracking-widest">
@@ -354,7 +367,7 @@ const ViewCertificate = () => {
             </div>
           )}
         </div>
-  
+
         <div className="mt-10 flex justify-center gap-4">
           <Button variant="outline" onClick={() => window.location.href = '/'}>
             Issue New
@@ -372,7 +385,7 @@ const ViewCertificate = () => {
       </div>
     </div>
   )
-  
+
 
 
 };

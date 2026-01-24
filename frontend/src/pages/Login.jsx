@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Button } from "@/components/ui/button";
 import {
     Card,
@@ -30,7 +30,12 @@ export default function LoginPage() {
 
     const {login} = useAuth();
     const navigate = useNavigate();
-
+    useEffect(()=>{
+        if(token){
+            navigate('/admin');
+       }
+    },[])
+    
     const handleLogin = async (e) => {
         e.preventDefault();
         setLoading(true);
@@ -56,9 +61,7 @@ export default function LoginPage() {
             setLoading(false);
         }
     }
-    if(token){
-         navigate('/admin');
-    }
+    
     return (
         <div className="min-h-screen flex items-center justify-center bg-slate-50 dark:bg-slate-950 p-4">
             <Card className="w-full max-w-md shadow-xl hover:shadow-2xl transition-shadow duration-300">

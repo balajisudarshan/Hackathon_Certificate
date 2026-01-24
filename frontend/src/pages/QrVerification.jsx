@@ -147,11 +147,7 @@ const QrVerification = () => {
                   </div>
                 </div>
 
-                <div className="text-center">
-                  <Button variant="outline" onClick={() => window.history.back()}>
-                    Go Back
-                  </Button>
-                </div>
+               
               </div>
             )}
 
