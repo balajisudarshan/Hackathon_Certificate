@@ -53,25 +53,259 @@ const ViewCertificate = () => {
   }, [certId]);
 
   const downloadPdf = async () => {
-    const node = targetRef.current
-    if (!node) return
+    if (!certificate) return
 
-    const dataUrl = await toPng(node, {
-      cacheBust: true,
-      pixelRatio: 2
-    })
+    try {
+      const pdf = new jsPDF('landscape', 'mm', 'a4')
+      const w = pdf.internal.pageSize.getWidth()
+      const h = pdf.internal.pageSize.getHeight()
 
-    const pdf = new jsPDF('landscape', 'pt', 'a4')
-    const pdfWidth = pdf.internal.pageSize.getWidth()
-    const img = new Image()
+      // ===== BACKGROUND =====
+      // Elegant cream background
+      pdf.setFillColor(254, 252, 248)
+      pdf.rect(0, 0, w, h, 'F')
 
-    img.src = dataUrl
-    await img.decode()
+      // Subtle gradient-like corners (light golden tint)
+      pdf.setFillColor(255, 250, 240)
+      pdf.rect(0, 0, w, 15, 'F')
+      pdf.rect(0, h - 15, w, 15, 'F')
 
-    const pdfHeight = (img.height * pdfWidth) / img.width
+      // ===== OUTER DECORATIVE BORDER =====
+      // Main gold border (thick)
+      pdf.setDrawColor(184, 134, 11)
+      pdf.setLineWidth(4)
+      pdf.rect(8, 8, w - 16, h - 16)
 
-    pdf.addImage(dataUrl, 'PNG', 0, 0, pdfWidth, pdfHeight)
-    pdf.save(`certificate_${certId}.pdf`)
+      // Inner accent border
+      pdf.setDrawColor(218, 165, 32)
+      pdf.setLineWidth(1.5)
+      pdf.rect(12, 12, w - 24, h - 24)
+
+      // Fine inner line
+      pdf.setDrawColor(184, 134, 11)
+      pdf.setLineWidth(0.5)
+      pdf.rect(14, 14, w - 28, h - 28)
+
+      // ===== DECORATIVE CORNER ELEMENTS =====
+      const cornerSize = 8
+      const margin = 15
+
+      // Top-left corner
+      pdf.setFillColor(184, 134, 11)
+      pdf.circle(margin, margin, cornerSize * 0.4, 'F')
+
+      // Top-right corner
+      pdf.circle(w - margin, margin, cornerSize * 0.4, 'F')
+
+      // Bottom-left corner
+      pdf.circle(margin, h - margin, cornerSize * 0.4, 'F')
+
+      // Bottom-right corner
+      pdf.circle(w - margin, h - margin, cornerSize * 0.4, 'F')
+
+      // ===== HEADER ORNAMENT =====
+      // Decorative line above title
+      pdf.setDrawColor(218, 165, 32)
+      pdf.setLineWidth(0.5)
+      pdf.line(w / 2 - 40, 28, w / 2 + 40, 28)
+
+      // ===== MAIN TITLE =====
+      pdf.setFont('courier', 'bold')
+      pdf.setFontSize(52)
+      pdf.setTextColor(184, 134, 11)
+      pdf.text('CERTIFICATE', w / 2, 42, { align: 'center' })
+
+      // Decorative line below title
+      pdf.setDrawColor(218, 165, 32)
+      pdf.setLineWidth(0.5)
+      pdf.line(w / 2 - 40, 50, w / 2 + 40, 50)
+
+      // ===== SUBTITLE =====
+      pdf.setFont('times', 'italic')
+      pdf.setFontSize(24)
+      pdf.setTextColor(139, 69, 19)
+      pdf.text('of Completion', w / 2, 62, { align: 'center' })
+
+      // ===== INTRODUCTION TEXT =====
+      pdf.setFont('times', 'normal')
+      pdf.setFontSize(14)
+      pdf.setTextColor(80, 80, 80)
+      pdf.text('This is to certify that', w / 2, 78, { align: 'center' })
+
+      // ===== CERTIFICATE HOLDER NAME - HIGHLIGHTED =====
+      pdf.setFont('courier', 'bold')
+      pdf.setFontSize(38)
+      pdf.setTextColor(25, 25, 112)
+
+      // Light background box for name
+      const nameWidth = pdf.getStringUnitWidth(certificate.name.toUpperCase()) * 38 / pdf.internal.getFontSize()
+      pdf.setFillColor(240, 248, 255)
+      pdf.rect((w - nameWidth) / 2 - 8, 88, nameWidth + 16, 14, 'F')
+
+      // Name text
+      pdf.text(certificate.name.toUpperCase(), w / 2, 99, { align: 'center' })
+
+      // ===== COMPLETION TEXT =====
+      pdf.setFont('times', 'normal')
+      pdf.setFontSize(14)
+      pdf.setTextColor(80, 80, 80)
+      pdf.text('has successfully completed the course', w / 2, 115, { align: 'center' })
+
+      // ===== COURSE NAME - EMPHASIZED =====
+      pdf.setFont('courier', 'bold')
+      pdf.setFontSize(26)
+      pdf.setTextColor(139, 69, 19)
+      pdf.text(course.toUpperCase(), w / 2, 135, { align: 'center' })
+
+      // ===== HORIZONTAL DIVIDER =====
+      pdf.setDrawColor(218, 165, 32)
+      pdf.setLineWidth(1)
+      pdf.line(30, 143, w - 30, 143)
+
+      // ===== DETAILS SECTION =====
+      pdf.setFont('times', 'normal')
+      pdf.setFontSize(11)
+      pdf.setTextColor(100, 100, 100)
+
+      const detailsY = 158
+      const spacing = (w - 60) / 3
+
+      // Issued By
+      pdf.setFont('times', 'bold')
+      pdf.setFontSize(9)
+      pdf.setTextColor(139, 69, 19)
+      pdf.text('ISSUED BY', 30, detailsY)
+
+      pdf.setFont('times', 'normal')
+      pdf.setFontSize(11)
+      pdf.setTextColor(60, 60, 60)
+      pdf.text(issuer, 30, detailsY + 8)
+
+      // Date
+      pdf.setFont('times', 'bold')
+      pdf.setFontSize(9)
+      pdf.setTextColor(139, 69, 19)
+      pdf.text('DATE ISSUED', 30 + spacing, detailsY)
+
+      pdf.setFont('times', 'normal')
+      pdf.setFontSize(11)
+      pdf.setTextColor(60, 60, 60)
+      pdf.text(issueDate, 30 + spacing, detailsY + 8)
+
+      // Certificate ID
+      pdf.setFont('times', 'bold')
+      pdf.setFontSize(9)
+      pdf.setTextColor(139, 69, 19)
+      pdf.text('CERTIFICATE ID', 30 + spacing * 2, detailsY)
+
+      pdf.setFont('times', 'normal')
+      pdf.setFontSize(10)
+      pdf.setTextColor(60, 60, 60)
+      pdf.text(id, 30 + spacing * 2, detailsY + 8)
+
+      // ===== BOTTOM SIGNATURE & QR SECTION =====
+      const bottomY = h - 48
+
+      // ===== LEFT: SIGNATURE AREA =====
+      const sigX = 30
+
+      // Signature line
+      pdf.setDrawColor(80, 80, 80)
+      pdf.setLineWidth(1)
+      pdf.line(sigX, bottomY, sigX + 50, bottomY)
+
+      // Signature details
+      pdf.setFont('times', 'normal')
+      pdf.setFontSize(9)
+      pdf.setTextColor(100, 100, 100)
+      pdf.text('_______________________', sigX + 25, bottomY + 6, { align: 'center' })
+
+      pdf.setFont('times', 'bold')
+      pdf.setFontSize(10)
+      pdf.setTextColor(80, 80, 80)
+      pdf.text('Authorized Signatory', sigX + 25, bottomY + 14, { align: 'center' })
+
+      pdf.setFont('times', 'normal')
+      pdf.setFontSize(9)
+      pdf.setTextColor(100, 100, 100)
+      pdf.text(issuer, sigX + 25, bottomY + 20, { align: 'center' })
+
+      // ===== RIGHT: QR CODE WITH FRAME =====
+      if (qrCodeData) {
+        const qrImage = new Image()
+        qrImage.src = qrCodeData
+
+        await new Promise((resolve, reject) => {
+          qrImage.onload = () => resolve()
+          qrImage.onerror = () => reject(new Error('QR code failed to load'))
+          setTimeout(() => reject(new Error('QR code timeout')), 3000)
+        })
+
+        const qrSize = 28
+        const qrX = w - qrSize - 28
+        const qrY = bottomY - 5
+
+        // QR Frame
+        pdf.setDrawColor(184, 134, 11)
+        pdf.setLineWidth(1.5)
+        pdf.rect(qrX - 3, qrY - 3, qrSize + 6, qrSize + 6)
+
+        // Add QR image
+        pdf.addImage(qrImage, 'PNG', qrX, qrY, qrSize, qrSize)
+
+        // QR label
+        pdf.setFont('times', 'normal')
+        pdf.setFontSize(8)
+        pdf.setTextColor(100, 100, 100)
+        pdf.text('Scan to verify this certificate', w - qrSize / 2 - 14, bottomY + 26, { align: 'center' })
+      }
+
+      // ===== WATERMARK STATUS =====
+      if (!isValid) {
+        pdf.setTextColor(220, 20, 60)
+        pdf.setFont('courier', 'bold')
+        pdf.setFontSize(70)
+        pdf.text('NOT VALID', w / 2, h / 2 - 10, {
+          align: 'center',
+          angle: -45,
+        })
+        pdf.setGState(new pdf.GState({ opacity: 0.08 }))
+        pdf.rect(0, 0, w, h, 'F')
+        pdf.setGState(new pdf.GState({ opacity: 1 }))
+      } else if (status === 'revoked') {
+        pdf.setTextColor(220, 20, 60)
+        pdf.setFont('courier', 'bold')
+        pdf.setFontSize(70)
+        pdf.text('REVOKED', w / 2, h / 2 - 10, {
+          align: 'center',
+          angle: -45,
+        })
+        pdf.setGState(new pdf.GState({ opacity: 0.08 }))
+        pdf.rect(0, 0, w, h, 'F')
+        pdf.setGState(new pdf.GState({ opacity: 1 }))
+      } else if (expired) {
+        pdf.setTextColor(220, 20, 60)
+        pdf.setFont('courier', 'bold')
+        pdf.setFontSize(70)
+        pdf.text('EXPIRED', w / 2, h / 2 - 10, {
+          align: 'center',
+          angle: -45,
+        })
+        pdf.setGState(new pdf.GState({ opacity: 0.08 }))
+        pdf.rect(0, 0, w, h, 'F')
+        pdf.setGState(new pdf.GState({ opacity: 1 }))
+      }
+
+      // ===== FOOTER ORNAMENT =====
+      pdf.setDrawColor(218, 165, 32)
+      pdf.setLineWidth(0.5)
+      pdf.line(w / 2 - 30, h - 12, w / 2 + 30, h - 12)
+
+      pdf.save(`certificate_${certId}.pdf`)
+    } catch (error) {
+      console.error('PDF download failed:', error)
+      alert('Failed to download PDF. Please try again.')
+    }
   }
 
 
@@ -263,92 +497,87 @@ const ViewCertificate = () => {
 
 
   return (
-    <div className="min-h-screen bg-neutral-100 flex items-center justify-center p-1  ">
-      <div className="w-full max-w-5xl">
+    <div className="min-h-screen bg-neutral-100 flex items-center justify-center p-2 md:p-4">
+      <div className="w-full max-w-4xl lg:max-w-5xl">
         <div
           ref={targetRef}
-          className="relative bg-white px-16 py-15 rounded-lg shadow-xl text-center"
+          className="relative bg-white px-4 sm:px-8 md:px-12 lg:px-16 py-8 sm:py-10 md:py-12 lg:py-15 rounded-lg shadow-xl text-center"
         >
-          <div className="absolute inset-6 border border-neutral-300 rounded-md"></div>
+          <div className="absolute inset-4 sm:inset-5 md:inset-6 border border-neutral-300 rounded-md"></div>
 
-          <div className="relative mb-3">
-            <p className="uppercase tracking-[0.3em] text-sm text-neutral-500 mb-4">
+          <div className="relative mb-3 md:mb-4">
+            <p className="uppercase tracking-[0.2em] sm:tracking-[0.3em] text-xs sm:text-sm text-neutral-500 mb-2 md:mb-4">
               Certificate
             </p>
-            <h1 className="text-5xl font-serif font-semibold text-neutral-900">
+            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-serif font-semibold text-neutral-900">
               Certificate of Completion
             </h1>
           </div>
 
-          <p className="text-neutral-600 text-lg mb-5">
+          <p className="text-neutral-600 text-base sm:text-lg mb-3 md:mb-5">
             This is to certify that
           </p>
 
-          <h2 className="text-4xl font-semibold text-neutral-900 border-b border-neutral-400 inline-block px-10 pb-2 mb-12">
+          <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-semibold text-neutral-900 border-b border-neutral-400 inline-block px-4 sm:px-6 md:px-10 pb-1 md:pb-2 mb-6 md:mb-12">
             {certificate.name.toUpperCase()}
           </h2>
 
-          <p className="text-neutral-600 text-lg mb-3">
+          <p className="text-neutral-600 text-base sm:text-lg mb-2 md:mb-3">
             has successfully completed the course
           </p>
 
-          <h3 className="text-3xl font-medium text-neutral-800 mb-10">
+          <h3 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-medium text-neutral-800 mb-6 md:mb-10">
             {course}
           </h3>
 
-          <div className="grid grid-cols-3 gap-12 text-sm text-neutral-700 mb-10">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 sm:gap-8 md:gap-12 text-xs sm:text-sm md:text-base text-neutral-700 mb-8 md:mb-10">
             <div>
-              <p className="uppercase tracking-wider text-neutral-400 mb-1">
+              <p className="uppercase tracking-wider text-neutral-400 mb-1 text-xs">
                 Issued By
               </p>
-              <p className="font-medium">{issuer}</p>
+              <p className="font-medium text-sm md:text-base">{issuer}</p>
             </div>
 
             <div>
-              <p className="uppercase tracking-wider text-neutral-400 mb-1">
+              <p className="uppercase tracking-wider text-neutral-400 mb-1 text-xs">
                 Date
               </p>
-              <p className="font-medium">{issueDate}</p>
+              <p className="font-medium text-sm md:text-base">{issueDate}</p>
             </div>
 
             <div>
-              <p className="uppercase tracking-wider text-neutral-400 mb-1">
+              <p className="uppercase tracking-wider text-neutral-400 mb-1 text-xs">
                 Certificate ID
               </p>
-              <p className="font-mono">{id}</p>
+              <p className="font-mono text-xs sm:text-sm md:text-base">{id}</p>
             </div>
           </div>
 
-          <div className="flex justify-between items-end">
+          <div className="flex flex-col sm:flex-row justify-between items-center sm:items-end gap-4 md:gap-8">
             <div className="text-left">
-
-
-              <img src={signature} className='w-50' />
-
-              <div className="w-52 h-px bg-neutral-800 mb-2">
-
-              </div>
-              <p className="font-medium">{issuer}</p>
+              <img src={signature} className='w-32 sm:w-40 md:w-48 lg:w-52' />
+              <div className="w-32 sm:w-40 md:w-48 lg:w-52 h-px bg-neutral-800 mb-2"></div>
+              <p className="font-medium text-sm md:text-base">{issuer}</p>
               <p className="text-xs text-neutral-500">
                 Authorized Signatory
               </p>
             </div>
 
             {qrCodeData && (
-              <>
-                <a href={`${frontendUrl}/qr/verify/${certId}`} className='link text-blue-950 underline z-100'>Verify it here</a>
+              <div className="flex flex-col items-center gap-2">
+                <a href={`${frontendUrl}/qr/verify/${certId}`} className='link text-blue-950 underline text-xs md:text-sm' target="_blank" rel="noopener noreferrer">Verify it here</a>
                 <img
                   src={qrCodeData}
                   alt="QR Code"
-                  className="w-24 h-24"
+                  className="w-20 h-20 sm:w-24 sm:h-24"
                 />
-              </>
+              </div>
             )}
           </div>
 
           {!isValid && (
             <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-              <span className="text-red-600/10 text-7xl font-bold rotate-[-25deg] tracking-widest">
+              <span className="text-red-600/10 text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold rotate-[-25deg] tracking-widest">
                 NOT VALID
               </span>
             </div>
@@ -356,7 +585,7 @@ const ViewCertificate = () => {
 
           {status === 'revoked' && (
             <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-              <span className="text-red-600/10 text-7xl font-bold rotate-[-25deg] tracking-widest">
+              <span className="text-red-600/10 text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold rotate-[-25deg] tracking-widest">
                 REVOKED
               </span>
             </div>
@@ -364,24 +593,24 @@ const ViewCertificate = () => {
 
           {expired && (
             <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-              <span className="text-red-600/10 text-7xl font-bold rotate-[-25deg] tracking-widest">
+              <span className="text-red-600/10 text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold rotate-[-25deg] tracking-widest">
                 EXPIRED
               </span>
             </div>
           )}
         </div>
 
-        <div className="mt-10 flex justify-center gap-4">
-          <Button variant="outline" onClick={() => window.location.href = '/'}>
+        <div className="mt-6 md:mt-10 flex flex-wrap justify-center gap-2 md:gap-4">
+          <Button variant="outline" onClick={() => window.location.href = '/'} className="text-xs sm:text-sm">
             Issue New
           </Button>
-          <Button variant="outline" onClick={() => window.location.href = '/verify'}>
+          <Button variant="outline" onClick={() => window.location.href = '/verify'} className="text-xs sm:text-sm">
             Verify Another
           </Button>
-          <Button variant="outline" onClick={() => window.location.href = '/admin'}>
+          <Button variant="outline" onClick={() => window.location.href = '/admin'} className="text-xs sm:text-sm">
             Admin
           </Button>
-          <Button onClick={downloadPdf}>
+          <Button onClick={downloadPdf} className="text-xs sm:text-sm">
             Download PDF
           </Button>
         </div>
