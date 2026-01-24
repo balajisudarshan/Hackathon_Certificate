@@ -105,8 +105,14 @@ const AdminDashboard = () => {
             setOrganization('')
             setPassword('')
             toast.success('User added successfully')
-        } catch {
-            toast.error('Failed to add user')
+        } catch (error) {
+            const errors = error.response?.data?.errors
+            if (Array.isArray(errors)) {
+                errors.forEach(e => toast.error(e.message))
+            } else {
+                toast.error(error.message)
+            }
+
         } finally {
             setLoading(false)
         }
